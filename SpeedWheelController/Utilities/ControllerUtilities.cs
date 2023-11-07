@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using SharpDX.XInput;
 
 namespace SpeedWheelController.Utilities
 {
@@ -13,6 +15,11 @@ namespace SpeedWheelController.Utilities
             {
                 _ = FnOff(i);
             }
+        }
+
+        public static IEnumerable<Controller> GetControllers()
+        {
+            return new[] { new Controller(UserIndex.One), new Controller(UserIndex.Two), new Controller(UserIndex.Three), new Controller(UserIndex.Four) };
         }
     }
 }

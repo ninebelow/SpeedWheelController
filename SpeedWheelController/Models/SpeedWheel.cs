@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Threading;
 using Nefarius.ViGEm.Client;
@@ -12,82 +11,59 @@ namespace SpeedWheelController.Models
 {
     public class SpeedWheel : BaseModel, IDisposable
     {
-        private int steeringValue = 0;
-
-        private int accelerationValue = 0;
-        
-        private int brakingValue = 0;
-
-        private int leftMotorSpeedValue = 0;
-
-        private int rightMotorSpeedValue = 0;
-
+        private int steering = 0;
+        private int acceleration = 0;
+        private int braking = 0;
+        private int leftMotorSpeed = 0;
+        private int rightMotorSpeed = 0;
         private string message = string.Empty;
-
         private IXbox360Controller? virtualController;
-
-        private DispatcherTimer timer = new DispatcherTimer();
-
+        private readonly DispatcherTimer timer = new DispatcherTimer();
         private Controller? physicalController;
+        private readonly TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
 
-        private State? previousState;
+        public SpeedWheelConstants Constants => new SpeedWheelConstants();
 
-        private int ninetyDegrees = 25_000;
+        public State? ControllerState { get; private set; }
 
-        private TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
-
-        public int SteeringMaximumValue => 32_767;
-
-        public int SteeringMinimumValue => -32_768;
-
-        public int AccelerationMaximumValue => 255;
-
-        public int AccelerationMinimumValue => 0;
-
-        public int BrakingMaximumValue => 255;
-
-        public int BrakingMinimumValue => 0;
-
-        public int MotorSpeedMaximumValue => 65_535;
-
-        public int MotorSpeedMinimumValue => 0;
+        public State? PreviousState { get; private set; }
 
         public bool LimitTo180Degrees { get; set; }
 
-        public int SteeringValue
+        public int Steering
         {
-            get => this.steeringValue;
-            set => this.SetProperty(ref this.steeringValue, value);
+            get => this.steering;
+            set => this.SetProperty(ref this.steering, value);
         }
 
-        public int AccelerationValue
+        public int Acceleration
         {
-            get => this.accelerationValue;
-            set => this.SetProperty(ref this.accelerationValue, value);
+            get => this.acceleration;
+            set => this.SetProperty(ref this.acceleration, value);
         }
 
-        public int BrakingValue
+        public int Braking
         {
-            get => this.brakingValue;
-            set => this.SetProperty(ref this.brakingValue, value);
+            get => this.braking;
+            set => this.SetProperty(ref this.braking, value);
         }
 
-        public int LeftMotorSpeedValue
+        public int LeftMotorSpeed
         {
-            get => this.leftMotorSpeedValue;
+            get => this.leftMotorSpeed;
             set
             {
-                this.SetProperty(ref this.leftMotorSpeedValue, value);
+                this.SetProperty(ref this.leftMotorSpeed, value);
                 this.SetVibration();
             }
         }
 
-        public int RightMotorSpeedValue
+        public int RightMotorSpeed
         {
-            get => this.rightMotorSpeedValue;
+            get => this.rightMotorSpeed;
             set
             {
-                this.SetProperty(ref this.rightMotorSpeedValue, value);
+                this.SetProperty(ref this.rightMotorSpeed, value);
                 this.SetVibration();
             }
         }
@@ -119,6 +95,12 @@ namespace SpeedWheelController.Models
             this.Initialize();
         }
 
+        public void Dispose()
+        {
+            ControllerUtilities.TurnOffAllControllers();
+            this.virtualController?.Disconnect();
+        }
+
         public void Initialize()
         {
             this.Message = "Starting!";
@@ -127,45 +109,9 @@ namespace SpeedWheelController.Models
             this.timer.Start();
         }
 
-        public void ConnectController()
-        {
-            this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
-            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
-            if (this.physicalController == null)
-            {
-                this.Message = "Please connect your SpeedWheel now.";
-            }
-            else
-            {
-                var batteryInfo = this.physicalController.GetBatteryInformation(BatteryDeviceType.Gamepad);
-                this.Message = $"SpeedWheel connected as an Xbox 360 controller... Ready to race! (Battery level: {batteryInfo.BatteryLevel})";
-            }
-        }
-
-        public void Dispose()
-        {
-            ControllerUtilities.TurnOffAllControllers();
-            this.virtualController?.Disconnect();
-        }
-
-        public void Disconnect()
-        {
-            this.timer.Tick -= new EventHandler(this.ConfigureSpeedWheel);
-            this.timer.Stop();
-
-            ControllerUtilities.TurnOffAllControllers();
-            this.physicalController = null;
-            this.virtualController?.Disconnect();
-            this.virtualController = null;
-            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
-            base.OnPropertyChanged(nameof(this.IsVirtualControllerConnected));
-
-            this.Message = "SpeedWheel has been disconnected.";
-        }
-
         private void ConfigureSpeedWheel(object? sender, EventArgs e)
         {
-            if (this.virtualController == null && this.GetControllers().Any(x => x.IsConnected))
+            if (this.virtualController == null && ControllerUtilities.GetControllers().Any(x => x.IsConnected))
             {
                 this.Message = "Disconnecting all controllers before starting SpeedWheel emulation.";
                 ControllerUtilities.TurnOffAllControllers();
@@ -177,7 +123,7 @@ namespace SpeedWheelController.Models
                 {
                     ViGEmClient client = new ViGEmClient();
                     this.virtualController = client.CreateXbox360Controller();
-                    this.virtualController.FeedbackReceived += this.VirtualController_FeedbackReceived;
+                    this.virtualController.FeedbackReceived += this.FeedbackReceived;
                     this.virtualController.AutoSubmitReport = false;
                     this.virtualController.Connect();
                 }
@@ -197,32 +143,6 @@ namespace SpeedWheelController.Models
             }
         }
 
-        private void VirtualController_FeedbackReceived(object sender, Xbox360FeedbackReceivedEventArgs e)
-        {
-            if (this.physicalController == null)
-            {
-                return;
-            }
-
-            this.LeftMotorSpeedValue = (ushort)(((decimal)e.LargeMotor / 255m) * this.MotorSpeedMaximumValue);
-            this.RightMotorSpeedValue = (ushort)(((decimal)e.SmallMotor / 255m) * this.MotorSpeedMaximumValue);
-        }
-
-        private void SetVibration()
-        {
-            if (this.physicalController == null)
-            {
-                return;
-            }
-
-            Vibration vibration = new Vibration()
-            {
-                LeftMotorSpeed = (ushort)this.LeftMotorSpeedValue,
-                RightMotorSpeed = (ushort)this.RightMotorSpeedValue
-            };
-            this.physicalController.SetVibration(vibration);
-        }
-
         private void PollSpeedWheel(object? sender, EventArgs e)
         {
             if (this.physicalController == null || !this.physicalController.IsConnected)
@@ -239,71 +159,11 @@ namespace SpeedWheelController.Models
 
             try
             {
-                var state = this.physicalController?.GetState();
-                if (this.previousState?.PacketNumber != state?.PacketNumber)
+                this.ControllerState = this.physicalController?.GetState();
+                if (this.PreviousState?.PacketNumber != this.ControllerState?.PacketNumber)
                 {
-                    // fake shoulder button press
-                    if (this.IsButtonPressed(state, GamepadButtonFlags.DPadRight) && this.IsButtonPressed(state, GamepadButtonFlags.X))
-                    {
-                        this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, state?.Gamepad.RightTrigger > 50);
-                        this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, state?.Gamepad.LeftTrigger > 50);
-                        this.virtualController?.SubmitReport();
-                        return;
-                    }
-                    else
-                    {
-                        this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, false);
-                        this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, false);
-                    }
-
-                    double steeringIn = (double)(state?.Gamepad.LeftThumbX ?? 0);
-                    double steeringOut = steeringIn;
-
-                    if (this.LimitTo180Degrees)
-                    {
-                        if (steeringIn > 0)
-                        {
-                            steeringOut = Math.Min(steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMaximumValue;
-                        }
-                        else if (steeringIn < 0)
-                        {
-                            steeringOut = Math.Min(-steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMinimumValue;
-                        }
-                    }
-
-                    this.SteeringValue = (int)steeringOut;
-                    this.AccelerationValue = state?.Gamepad.RightTrigger ?? 0;
-                    this.BrakingValue = state?.Gamepad.LeftTrigger ?? 0;
-
-                    if (this.virtualController == null)
-                    {
-                        return;
-                    }
-
-                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)this.SteeringValue);
-                    this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, (byte)this.AccelerationValue);
-                    this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)this.BrakingValue);
-
-                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbY, state?.Gamepad.LeftThumbY ?? 0);
-                    this.virtualController.SetAxisValue(Xbox360Axis.RightThumbX, state?.Gamepad.RightThumbX ?? 0);
-                    this.virtualController.SetAxisValue(Xbox360Axis.RightThumbY, state?.Gamepad.RightThumbY ?? 0);
-
-                    this.virtualController.SetButtonState(Xbox360Button.A, this.IsButtonPressed(state, GamepadButtonFlags.A));
-                    this.virtualController.SetButtonState(Xbox360Button.B, this.IsButtonPressed(state, GamepadButtonFlags.B));
-                    this.virtualController.SetButtonState(Xbox360Button.X, this.IsButtonPressed(state, GamepadButtonFlags.X));
-                    this.virtualController.SetButtonState(Xbox360Button.Y, this.IsButtonPressed(state, GamepadButtonFlags.Y));
-                    this.virtualController.SetButtonState(Xbox360Button.Left, this.IsButtonPressed(state, GamepadButtonFlags.DPadLeft));
-                    this.virtualController.SetButtonState(Xbox360Button.Right, this.IsButtonPressed(state, GamepadButtonFlags.DPadRight));
-                    this.virtualController.SetButtonState(Xbox360Button.Up, this.IsButtonPressed(state, GamepadButtonFlags.DPadUp));
-                    this.virtualController.SetButtonState(Xbox360Button.Down, this.IsButtonPressed(state, GamepadButtonFlags.DPadDown));
-                    this.virtualController.SetButtonState(Xbox360Button.Start, this.IsButtonPressed(state, GamepadButtonFlags.Start));
-                    this.virtualController.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(state, GamepadButtonFlags.Back));
-                    this.virtualController.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(state, GamepadButtonFlags.LeftShoulder));
-                    this.virtualController.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
-
-                    this.virtualController.SubmitReport();
-
-                    this.previousState = state;
+                    this.SyncControllerState();
+                    this.PreviousState = this.ControllerState;
                 }
             }
             catch
@@ -313,20 +173,142 @@ namespace SpeedWheelController.Models
             }
         }
 
-        private bool IsButtonPressed(State? state, GamepadButtonFlags buttonFlag)
+        public void ConnectController()
         {
-            if (state == null)
+            this.physicalController = ControllerUtilities.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
+            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
+            if (this.physicalController == null)
+            {
+                this.Message = "Please connect your SpeedWheel now.";
+            }
+            else
+            {
+                var batteryInfo = this.physicalController.GetBatteryInformation(BatteryDeviceType.Gamepad);
+                this.Message = $"SpeedWheel connected as an Xbox 360 controller... Ready to race! (Battery level: {batteryInfo.BatteryLevel})";
+            }
+        }
+
+        public void Disconnect()
+        {
+            this.timer.Tick -= new EventHandler(this.ConfigureSpeedWheel);
+            this.timer.Stop();
+
+            ControllerUtilities.TurnOffAllControllers();
+            this.physicalController = null;
+            this.virtualController?.Disconnect();
+            this.virtualController = null;
+            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
+            base.OnPropertyChanged(nameof(this.IsVirtualControllerConnected));
+
+            this.Message = "SpeedWheel has been disconnected.";
+        }
+
+        private void SyncControllerState()
+        {
+            this.HandleFakeShoulderButtonPress();
+            this.Steering = this.GetSteering();
+            this.Acceleration = this.ControllerState?.Gamepad.RightTrigger ?? 0;
+            this.Braking = this.ControllerState?.Gamepad.LeftTrigger ?? 0;
+
+            if (this.virtualController == null)
+            {
+                return;
+            }
+
+            this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)this.Steering);
+            this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, (byte)this.Acceleration);
+            this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)this.Braking);
+
+            this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbY, this.ControllerState?.Gamepad.LeftThumbY ?? 0);
+            this.virtualController.SetAxisValue(Xbox360Axis.RightThumbX, this.ControllerState?.Gamepad.RightThumbX ?? 0);
+            this.virtualController.SetAxisValue(Xbox360Axis.RightThumbY, this.ControllerState?.Gamepad.RightThumbY ?? 0);
+
+            this.virtualController.SetButtonState(Xbox360Button.A, this.IsButtonPressed(GamepadButtonFlags.A));
+            this.virtualController.SetButtonState(Xbox360Button.B, this.IsButtonPressed(GamepadButtonFlags.B));
+            this.virtualController.SetButtonState(Xbox360Button.X, this.IsButtonPressed(GamepadButtonFlags.X));
+            this.virtualController.SetButtonState(Xbox360Button.Y, this.IsButtonPressed(GamepadButtonFlags.Y));
+            this.virtualController.SetButtonState(Xbox360Button.Left, this.IsButtonPressed(GamepadButtonFlags.DPadLeft));
+            this.virtualController.SetButtonState(Xbox360Button.Right, this.IsButtonPressed(GamepadButtonFlags.DPadRight));
+            this.virtualController.SetButtonState(Xbox360Button.Up, this.IsButtonPressed(GamepadButtonFlags.DPadUp));
+            this.virtualController.SetButtonState(Xbox360Button.Down, this.IsButtonPressed(GamepadButtonFlags.DPadDown));
+            this.virtualController.SetButtonState(Xbox360Button.Start, this.IsButtonPressed(GamepadButtonFlags.Start));
+            this.virtualController.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(GamepadButtonFlags.Back));
+            this.virtualController.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(GamepadButtonFlags.LeftShoulder));
+            this.virtualController.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(GamepadButtonFlags.RightShoulder));
+
+            this.virtualController.SubmitReport();
+        }
+
+        private void HandleFakeShoulderButtonPress()
+        {
+            if (this.IsButtonPressed(GamepadButtonFlags.DPadRight) && this.IsButtonPressed(GamepadButtonFlags.X))
+            {
+                this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, this.ControllerState?.Gamepad.RightTrigger > 50);
+                this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, this.ControllerState?.Gamepad.LeftTrigger > 50);
+                this.virtualController?.SubmitReport();
+                return;
+            }
+            else
+            {
+                this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, false);
+                this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, false);
+            }
+        }
+
+        private int GetSteering()
+        {
+            double steeringIn = (double)(this.ControllerState?.Gamepad.LeftThumbX ?? 0);
+            double steeringOut = steeringIn;
+
+            if (this.LimitTo180Degrees)
+            {
+                if (steeringIn > 0)
+                {
+                    steeringOut = Math.Min(steeringIn, this.Constants.NinetyDegrees) / this.Constants.NinetyDegrees * this.Constants.SteeringMaximum;
+                }
+                else if (steeringIn < 0)
+                {
+                    steeringOut = Math.Min(-steeringIn, this.Constants.NinetyDegrees) / this.Constants.NinetyDegrees * this.Constants.SteeringMinimum;
+                }
+            }
+
+            return (int)steeringOut;
+        }
+
+        private bool IsButtonPressed(GamepadButtonFlags buttonFlag)
+        {
+            if (this.ControllerState == null)
             {
                 return false;
             }
 
-            return (state.Value.Gamepad.Buttons & buttonFlag) == buttonFlag;
+            return (this.ControllerState.Value.Gamepad.Buttons & buttonFlag) == buttonFlag;
         }
 
-        private IEnumerable<Controller> GetControllers()
+        private void FeedbackReceived(object sender, Xbox360FeedbackReceivedEventArgs e)
         {
-            return new[] { new Controller(UserIndex.One), new Controller(UserIndex.Two), new Controller(UserIndex.Three), new Controller(UserIndex.Four) };
+            if (this.physicalController == null)
+            {
+                return;
+            }
+
+            this.LeftMotorSpeed = (ushort)(((decimal)e.LargeMotor / 255m) * this.Constants.MotorSpeedMaximum);
+            this.RightMotorSpeed = (ushort)(((decimal)e.SmallMotor / 255m) * this.Constants.MotorSpeedMaximum);
         }
 
+        private void SetVibration()
+        {
+            if (this.physicalController == null)
+            {
+                return;
+            }
+
+            Vibration vibration = new Vibration()
+            {
+                LeftMotorSpeed = (ushort)this.LeftMotorSpeed,
+                RightMotorSpeed = (ushort)this.RightMotorSpeed
+            };
+            this.physicalController.SetVibration(vibration);
+        }
     }
 }

@@ -42,12 +42,12 @@
                    Content="Steering:"/>
                 <Slider Grid.Row="0" 
                     Width="500"
-                    Value="{Binding Path=SpeedWheel.SteeringValue}" 
+                    Value="{Binding Path=SpeedWheel.Steering}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Minimum="{Binding Path=SpeedWheel.SteeringMinimumValue}" 
-                    Maximum="{Binding Path=SpeedWheel.SteeringMaximumValue}" 
+                    Minimum="{Binding Path=SpeedWheel.Constants.SteeringMinimum}" 
+                    Maximum="{Binding Path=SpeedWheel.Constants.SteeringMaximum}" 
                     TickPlacement="BottomRight" 
                     Ticks="0" 
                     IsEnabled="False"/>
@@ -60,12 +60,12 @@
                    Content="Acceleration:"/>
                 <Slider Grid.Row="1"
                     Width="500"
-                    Value="{Binding SpeedWheel.AccelerationValue}" 
+                    Value="{Binding SpeedWheel.Acceleration}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Minimum="{Binding SpeedWheel.AccelerationMinimumValue}" 
-                    Maximum="{Binding SpeedWheel.AccelerationMaximumValue}" 
+                    Minimum="{Binding SpeedWheel.Constants.AccelerationMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.AccelerationMaximum}" 
                     IsEnabled="False"/>
             </DockPanel>
 
@@ -76,12 +76,12 @@
                    Content="Braking:"/>
                 <Slider Grid.Row="2"
                     Width="500"
-                    Value="{Binding SpeedWheel.BrakingValue}" 
+                    Value="{Binding SpeedWheel.Braking}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Minimum="{Binding SpeedWheel.BrakingMinimumValue}" 
-                    Maximum="{Binding SpeedWheel.BrakingMaximumValue}" 
+                    Minimum="{Binding SpeedWheel.Constants.BrakingMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.BrakingMaximum}" 
                     Ticks="0, 100" 
                     IsEnabled="False"/>
             </DockPanel>
@@ -95,12 +95,12 @@
                    Content="Vibration left (big motor):"/>
                 <Slider Grid.Row="3"
                     Width="500"
-                    Value="{Binding SpeedWheel.LeftMotorSpeedValue}" 
+                    Value="{Binding SpeedWheel.LeftMotorSpeed}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
-                    Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
+                    Minimum="{Binding SpeedWheel.Constants.MotorSpeedMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.MotorSpeedMaximum}" 
                     IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
@@ -111,12 +111,12 @@
                    Content="Vibration right (small motor):"/>
                 <Slider Grid.Row="4"
                     Width="500"
-                    Value="{Binding SpeedWheel.RightMotorSpeedValue}" 
+                    Value="{Binding SpeedWheel.RightMotorSpeed}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
-                    Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
-                    Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
+                    Minimum="{Binding SpeedWheel.Constants.MotorSpeedMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.MotorSpeedMaximum}" 
                     IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
