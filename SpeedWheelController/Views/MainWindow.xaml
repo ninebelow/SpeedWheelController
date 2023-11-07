@@ -11,6 +11,8 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
+                <MenuItem Header="_Connect Controller" Command="{Binding Path=ConnectCommand}" />
+                <MenuItem Header="_Disconnect Controller" Command="{Binding Path=DisconnectCommand}" />
                 <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
             </MenuItem>
             <MenuItem Header="_Help">

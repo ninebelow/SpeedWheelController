@@ -8,8 +8,6 @@ namespace SpeedWheelController.ViewModels
         private readonly Action<object> execute;
         private readonly Predicate<object> canExecute;
 
-        public event EventHandler? CanExecuteChanged;
-
         public RelayCommand(Action<object> execute) : this(execute, null!)
         {
         }
@@ -28,6 +26,12 @@ namespace SpeedWheelController.ViewModels
         public void Execute(object? parameter)
         {
             this.execute(parameter!);
+        }
+
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
         }
     }
 }

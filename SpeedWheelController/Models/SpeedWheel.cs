@@ -36,6 +36,8 @@ namespace SpeedWheelController.Models
 
         private TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
 
+        private bool pauseEmulation = false;
+
         public int SteeringMaximumValue => 32_767;
 
         public int SteeringMinimumValue => -32_768;
@@ -150,18 +152,68 @@ namespace SpeedWheelController.Models
             }
         }
 
+        public bool IsVirtualControllerConnected
+        {
+            get
+            {
+                return this.virtualController != null;
+            }
+        }
+
+        public bool IsPhysicalControllerConnected
+        {
+            get
+            {
+                return this.physicalController != null;
+            }
+        }
+
         public SpeedWheel()
         {
             this.Initialize();
         }
 
-        private void Initialize()
+        public void Initialize()
         {
             this.Message = "Starting!";
-            
             this.timer.Interval = this.pollInterval;
             this.timer.Tick += new EventHandler(this.ConfigureSpeedWheel);
             this.timer.Start();
+        }
+
+        public void ConnectController()
+        {
+            this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
+            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
+            if (this.physicalController == null)
+            {
+                this.Message = "Please connect your SpeedWheel now.";
+            }
+            else
+            {
+                this.Message = "SpeedWheel connected as an Xbox 360 controller... ready to race!";
+            }
+        }
+
+        public void Dispose()
+        {
+            ControllerUtilities.TurnOffAllControllers();
+            this.virtualController?.Disconnect();
+        }
+
+        public void Disconnect()
+        {
+            this.timer.Tick -= new EventHandler(this.ConfigureSpeedWheel);
+            this.timer.Stop();
+
+            ControllerUtilities.TurnOffAllControllers();
+            this.physicalController = null;
+            this.virtualController?.Disconnect();
+            this.virtualController = null;
+            base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
+            base.OnPropertyChanged(nameof(this.IsVirtualControllerConnected));
+
+            this.Message = "SpeedWheel has been disconnected.";
         }
 
         private void ConfigureSpeedWheel(object? sender, EventArgs e)
@@ -188,7 +240,7 @@ namespace SpeedWheelController.Models
                     return;
                 }
             }
-            else if(this.virtualController.UserIndex >  -1)
+            else if (this.virtualController.UserIndex > -1)
             {
                 this.Message = "Virtual Xbox 360 controller created.";
                 this.timer.Tick -= this.ConfigureSpeedWheel;
@@ -216,9 +268,11 @@ namespace SpeedWheelController.Models
                 return;
             }
 
-            Vibration vibration = new Vibration();
-            vibration.LeftMotorSpeed = (ushort)this.LeftMotorSpeedValue;
-            vibration.RightMotorSpeed = (ushort)this.RightMotorSpeedValue;
+            Vibration vibration = new Vibration()
+            {
+                LeftMotorSpeed = (ushort)this.LeftMotorSpeedValue,
+                RightMotorSpeed = (ushort)this.RightMotorSpeedValue
+            };
             this.physicalController.SetVibration(vibration);
         }
 
@@ -257,7 +311,7 @@ namespace SpeedWheelController.Models
 
                     double steeringIn = (double)(state?.Gamepad.LeftThumbX ?? 0);
                     double steeringOut = steeringIn;
-                  
+
                     if (steeringIn > 0)
                     {
                         steeringOut = Math.Min(steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMaximumValue;
@@ -324,23 +378,5 @@ namespace SpeedWheelController.Models
             return new[] { new Controller(UserIndex.One), new Controller(UserIndex.Two), new Controller(UserIndex.Three), new Controller(UserIndex.Four) };
         }
 
-        private void ConnectController()
-        {
-            this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
-            if (this.physicalController == null)
-            {
-                this.Message = "Please connect your SpeedWheel now.";
-            }
-            else
-            {
-                this.Message = "SpeedWheel connected as an Xbox 360 controller... ready to race!";
-            }
-        }
-
-        public void Dispose()
-        {
-            ControllerUtilities.TurnOffAllControllers();
-            this.virtualController?.Disconnect();
-        }
     }
 }

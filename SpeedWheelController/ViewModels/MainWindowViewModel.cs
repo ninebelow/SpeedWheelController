@@ -7,7 +7,7 @@ namespace SpeedWheelController.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public SpeedWheel SpeedWheel { get; }
+        public SpeedWheel SpeedWheel { get; set; }
 
         public MainWindowViewModel()
         {
@@ -20,6 +20,22 @@ namespace SpeedWheelController.ViewModels
             get
             {
                 return new RelayCommand((_) => Application.Current.MainWindow.Close());
+            }
+        }
+
+        public ICommand ConnectCommand
+        {
+            get
+            {
+                return new RelayCommand((_) => this.SpeedWheel.Initialize(), (_) => !this.SpeedWheel.IsVirtualControllerConnected);
+            }
+        }
+
+        public ICommand DisconnectCommand
+        {
+            get
+            {
+                return new RelayCommand((_) => this.SpeedWheel.Disconnect(), (_) => this.SpeedWheel.IsPhysicalControllerConnected);
             }
         }
 
