@@ -198,6 +198,7 @@ namespace SpeedWheelController.Models
         {
             this.physicalController = ControllerUtilities.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
             base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
+            base.OnPropertyChanged(nameof(this.BatteryLevel));
             if (this.physicalController == null)
             {
                 this.Message = "Please connect your SpeedWheel now.";
@@ -220,6 +221,7 @@ namespace SpeedWheelController.Models
             this.virtualController = null;
             base.OnPropertyChanged(nameof(this.IsPhysicalControllerConnected));
             base.OnPropertyChanged(nameof(this.IsVirtualControllerConnected));
+            base.OnPropertyChanged(nameof(this.BatteryLevel));
 
             this.Message = "SpeedWheel has been disconnected.";
         }
