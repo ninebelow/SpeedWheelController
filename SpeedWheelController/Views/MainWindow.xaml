@@ -103,7 +103,8 @@
                     TickPlacement="BottomRight" 
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
-                    Ticks="0, 100" />
+                    Ticks="0, 100" 
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
             <DockPanel VerticalAlignment="Center" Margin="10">
@@ -122,7 +123,8 @@
                     TickPlacement="BottomRight" 
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
-                    Ticks="0, 100" />
+                    Ticks="0, 100" 
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
         </StackPanel>
