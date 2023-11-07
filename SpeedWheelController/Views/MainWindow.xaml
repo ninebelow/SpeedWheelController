@@ -6,7 +6,9 @@
         xmlns:local="clr-namespace:SpeedWheelController" xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="SpeedWheel Controller" 
-        Height="420" Width="800">
+        Height="420" 
+        Width="800"
+        Background="LightGray">
 
     <DockPanel>
         <Menu DockPanel.Dock="Top">

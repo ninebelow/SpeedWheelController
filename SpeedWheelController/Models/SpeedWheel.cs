@@ -36,8 +36,6 @@ namespace SpeedWheelController.Models
 
         private TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
 
-        private bool pauseEmulation = false;
-
         public int SteeringMaximumValue => 32_767;
 
         public int SteeringMinimumValue => -32_768;
