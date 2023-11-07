@@ -19,7 +19,27 @@ namespace SpeedWheelController.Models
 
         private int steeringMinimumValue = -32_768;
 
-        private int steeringValue = 50;
+        private int steeringValue = 0;
+
+        private int accelerationMaximumValue = 255;
+
+        private int accelerationMinimumValue = 0;
+
+        private int accelerationValue = 0;
+
+        private int brakingMaximumValue = 255;
+
+        private int brakingMinimumValue = 0;
+
+        private int brakingValue = 0;
+
+        private int motorSpeedMaximumValue = 65_535;
+
+        private int motorSpeedMinimumValue = 0;
+
+        private int leftMotorSpeedValue = 0;
+
+        private int rightMotorSpeedValue = 0;
 
         private string message = string.Empty;
 
@@ -86,6 +106,148 @@ namespace SpeedWheelController.Models
             }
         }
 
+        public int AccelerationValue
+        {
+            get
+            {
+                return this.accelerationValue;
+            }
+            set
+            {
+                if (value == this.accelerationValue)
+                {
+                    return;
+                }
+
+                this.accelerationValue = value;
+                base.OnPropertyChanged(nameof(this.AccelerationValue));
+            }
+        }
+
+        public int AccelerationMaximumValue
+        {
+            get
+            {
+                return this.accelerationMaximumValue;
+            }
+            set
+            {
+                if (value == this.accelerationMaximumValue)
+                {
+                    return;
+                }
+
+                this.accelerationMaximumValue = value;
+                base.OnPropertyChanged(nameof(this.AccelerationMaximumValue));
+            }
+        }
+
+        public int AccelerationMinimumValue
+        {
+            get
+            {
+                return this.accelerationMinimumValue;
+            }
+            set
+            {
+                if (value == this.accelerationMinimumValue)
+                {
+                    return;
+                }
+
+                this.accelerationMinimumValue = value;
+                base.OnPropertyChanged(nameof(this.AccelerationMinimumValue));
+            }
+        }
+
+        public int BrakingValue
+        {
+            get
+            {
+                return this.brakingValue;
+            }
+            set
+            {
+                if (value == this.brakingValue)
+                {
+                    return;
+                }
+
+                this.brakingValue = value;
+                base.OnPropertyChanged(nameof(this.BrakingValue));
+            }
+        }
+
+        public int BrakingMaximumValue
+        {
+            get
+            {
+                return this.brakingMaximumValue;
+            }
+            set
+            {
+                if (value == this.brakingMaximumValue)
+                {
+                    return;
+                }
+
+                this.brakingMaximumValue = value;
+                base.OnPropertyChanged(nameof(this.BrakingMaximumValue));
+            }
+        }
+
+        public int BrakingMinimumValue
+        {
+            get
+            {
+                return this.brakingMinimumValue;
+            }
+            set
+            {
+                if (value == this.brakingMinimumValue)
+                {
+                    return;
+                }
+
+                this.brakingMinimumValue = value;
+                base.OnPropertyChanged(nameof(this.BrakingMinimumValue));
+            }
+        }
+
+        public int MotorSpeedMaximumValue => this.motorSpeedMaximumValue;
+
+        public int MotorSpeedMinimumValue => this.motorSpeedMinimumValue;
+
+        public int LeftMotorSpeedValue
+        {
+            get
+            {
+                return this.leftMotorSpeedValue;
+            }
+
+            set
+            {
+                this.leftMotorSpeedValue = value;
+                this.SetVibration();
+                base.OnPropertyChanged(nameof(this.LeftMotorSpeedValue));
+            }
+        }
+
+        public int RightMotorSpeedValue
+        {
+            get
+            {
+                return this.rightMotorSpeedValue;
+            }
+
+            set
+            {
+                this.rightMotorSpeedValue = value;
+                this.SetVibration();
+                base.OnPropertyChanged(nameof(this.RightMotorSpeedValue));
+            }
+        }
+
         public string Message
         {
             get
@@ -118,7 +280,7 @@ namespace SpeedWheelController.Models
         {
             if (this.virtualController == null && this.GetControllers().Any(x => x.IsConnected))
             {
-                this.Message += " Please disconnect all controllers before starting SpeedWheel emulation.";
+                this.Message = " Please disconnect all controllers before starting SpeedWheel emulation.";
             }
             else if (this.virtualController == null)
             {
@@ -154,14 +316,25 @@ namespace SpeedWheelController.Models
                 return;
             }
 
-            Vibration vibration = new Vibration();
 
             // TODO: Do we really care about left and right on speedwheel? Try to get consistent vibration;
-            var speed = (ushort)(((decimal)Math.Max(e.LargeMotor, e.SmallMotor) / 255m) * 65_535m);
-            vibration.LeftMotorSpeed = speed;
-            vibration.RightMotorSpeed = speed;
-            //vibration.LeftMotorSpeed = (ushort)(((decimal)e.LargeMotor / 255m) * 65_535m);
-            //vibration.RightMotorSpeed = (ushort)(((decimal)e.SmallMotor / 255m) * 65_535m);
+            //var speed = (ushort)(((decimal)Math.Max(e.LargeMotor, e.SmallMotor) / 255m) * 65_535m);
+            //vibration.LeftMotorSpeed = speed;
+            //vibration.RightMotorSpeed = speed;
+            this.LeftMotorSpeedValue = (ushort)(((decimal)e.LargeMotor / 255m) * 65_535m);
+            this.RightMotorSpeedValue = (ushort)(((decimal)e.SmallMotor / 255m) * 65_535m);
+        }
+
+        private void SetVibration()
+        {
+            if (this.physicalController == null)
+            {
+                return;
+            }
+
+            Vibration vibration = new Vibration();
+            vibration.LeftMotorSpeed = (ushort)this.LeftMotorSpeedValue;
+            vibration.RightMotorSpeed = (ushort)this.RightMotorSpeedValue;
             this.physicalController.SetVibration(vibration);
         }
 
@@ -223,7 +396,12 @@ namespace SpeedWheelController.Models
                     }
 
                     this.SteeringValue = (int)steeringOut;
-                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)steeringOut);
+                    this.AccelerationValue = state?.Gamepad.RightTrigger ?? 0;
+                    this.BrakingValue = state?.Gamepad.LeftTrigger ?? 0;
+                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)this.SteeringValue);
+                    this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, (byte)this.AccelerationValue);
+                    this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)this.BrakingValue);
+
                     this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbY, state?.Gamepad.LeftThumbY ?? 0);
                     this.virtualController.SetAxisValue(Xbox360Axis.RightThumbX, state?.Gamepad.RightThumbX ?? 0);
                     this.virtualController.SetAxisValue(Xbox360Axis.RightThumbY, state?.Gamepad.RightThumbY ?? 0);
@@ -240,8 +418,6 @@ namespace SpeedWheelController.Models
                     this.virtualController.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(state, GamepadButtonFlags.Back));
                     this.virtualController.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(state, GamepadButtonFlags.LeftShoulder));
                     this.virtualController.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
-                    this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, state?.Gamepad.LeftTrigger ?? 0);
-                    this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, state?.Gamepad.RightTrigger ?? 0);
                     this.virtualController.SubmitReport();
 
                     this.previousState = state;
