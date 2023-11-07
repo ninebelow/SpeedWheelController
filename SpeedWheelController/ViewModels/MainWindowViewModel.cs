@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.Input;
 using SpeedWheelController.Models;
 
 namespace SpeedWheelController.ViewModels
@@ -15,19 +16,13 @@ namespace SpeedWheelController.ViewModels
             this.SpeedWheel = new SpeedWheel();
         }
 
-        public ICommand CloseCommand
-        {
-            get
-            {
-                return new RelayCommand((_) => Application.Current.MainWindow.Close());
-            }
-        }
+        public ICommand CloseCommand => new RelayCommand(Application.Current.MainWindow.Close);
 
         public ICommand ConnectCommand
         {
             get
             {
-                return new RelayCommand((_) => this.SpeedWheel.Initialize(), (_) => !this.SpeedWheel.IsVirtualControllerConnected);
+                return new RelayCommand(this.SpeedWheel.Initialize, () => !this.SpeedWheel.IsVirtualControllerConnected);
             }
         }
 
@@ -35,7 +30,7 @@ namespace SpeedWheelController.ViewModels
         {
             get
             {
-                return new RelayCommand((_) => this.SpeedWheel.Disconnect(), (_) => this.SpeedWheel.IsPhysicalControllerConnected);
+                return new RelayCommand(this.SpeedWheel.Disconnect, () => this.SpeedWheel.IsPhysicalControllerConnected);
             }
         }
 
@@ -43,7 +38,7 @@ namespace SpeedWheelController.ViewModels
         {
             get
             {
-                return new RelayCommand((_) => MessageBox.Show("SpeedWheel trademark of Microsoft. Thanks to Nefarius, etc.", "About SpeedWheel Controller", MessageBoxButton.OK, MessageBoxImage.Information));
+                return new RelayCommand(() => MessageBox.Show("SpeedWheel trademark of Microsoft. Thanks to Nefarius, etc.", "About SpeedWheel Controller", MessageBoxButton.OK, MessageBoxImage.Information));
             }
         }
 
