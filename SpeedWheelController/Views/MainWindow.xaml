@@ -13,7 +13,6 @@
         Width="800"
         ResizeMode="NoResize">
 
-
     <Window.Background>
         <ImageBrush ImageSource="/Images/SpeedWheel.png" Stretch="UniformToFill" ></ImageBrush>
     </Window.Background>

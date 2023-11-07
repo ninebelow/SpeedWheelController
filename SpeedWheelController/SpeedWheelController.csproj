@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ApplicationIcon>Images\SpeedWheelTransparent.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Images\SpeedWheelTransparent.ico" />
     <Content Include="Images\SpeedWheel.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
