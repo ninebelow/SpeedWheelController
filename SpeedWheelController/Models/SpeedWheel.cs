@@ -41,6 +41,8 @@ namespace SpeedWheelController.Models
 
         private int rightMotorSpeedValue = 0;
 
+        private double steeringGrowth = 1.0;
+
         private string message = string.Empty;
 
         private IXbox360Controller? virtualController;
@@ -262,6 +264,23 @@ namespace SpeedWheelController.Models
             }
         }
 
+        public double SteeringGrowth
+        {
+            get
+            {
+                return this.steeringGrowth;
+            }
+            set
+            {
+                this.steeringGrowth = value;
+                base.OnPropertyChanged(nameof(this.SteeringGrowth));
+            }
+        }
+
+        public double SteeringGrowthMinimumValue => 1;
+
+        public double SteeringGrowthMaximumValue => 3;
+
         public SpeedWheel()
         {
             this.Initialize();
@@ -316,11 +335,6 @@ namespace SpeedWheelController.Models
                 return;
             }
 
-
-            // TODO: Do we really care about left and right on speedwheel? Try to get consistent vibration;
-            //var speed = (ushort)(((decimal)Math.Max(e.LargeMotor, e.SmallMotor) / 255m) * 65_535m);
-            //vibration.LeftMotorSpeed = speed;
-            //vibration.RightMotorSpeed = speed;
             this.LeftMotorSpeedValue = (ushort)(((decimal)e.LargeMotor / 255m) * 65_535m);
             this.RightMotorSpeedValue = (ushort)(((decimal)e.SmallMotor / 255m) * 65_535m);
         }
@@ -354,24 +368,22 @@ namespace SpeedWheelController.Models
 
             try
             {
-                // Poll events from physical controller
                 var state = this.physicalController?.GetState();
                 if (this.previousState?.PacketNumber != state?.PacketNumber)
                 {
-                    //// fake shoulder button press
-                    //if (this.IsButtonPressed(state, GamepadButtonFlags.Y) && this.IsButtonPressed(state, GamepadButtonFlags.DPadUp))
-                    //{
-                    //    this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, state?.Gamepad.RightTrigger > 50);
-                    //    this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, state?.Gamepad.LeftTrigger > 50);
-                    //    this.virtualController?.SubmitReport();
-                    //    ////Thread.Sleep(this.PollInterval);
-                    //    continue;
-                    //}
-                    //else
-                    //{
-                    //    this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, false);
-                    //    this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, false);
-                    //}
+                    // fake shoulder button press
+                    if (this.IsButtonPressed(state, GamepadButtonFlags.DPadRight) && this.IsButtonPressed(state, GamepadButtonFlags.X))
+                    {
+                        this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, state?.Gamepad.RightTrigger > 50);
+                        this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, state?.Gamepad.LeftTrigger > 50);
+                        this.virtualController?.SubmitReport();
+                        return;
+                    }
+                    else
+                    {
+                        this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, false);
+                        this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, false);
+                    }
 
                     // Each of the thumbstick axis members is a signed value between -32768 and 32767 describing the position of the thumbstick.
                     // A value of 0 is centered. Negative values signify down or to the left.
@@ -379,25 +391,28 @@ namespace SpeedWheelController.Models
                     // The constants XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE or XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE can be used as a positive and negative value to filter a thumbstick input.
                     // Left thumbstick x-axis value.
 
-                    double growth = 1.2;
                     double steeringIn = (double)(state?.Gamepad.LeftThumbX ?? 0);
                     double steeringOut = 0;
 
                     if (steeringIn > 0)
                     {
-                        double limit = 32767.0;
-                        steeringOut = Math.Pow(steeringIn, growth) / Math.Pow(limit, growth) * limit;
+                        steeringOut = Math.Pow(steeringIn, this.SteeringGrowth) / Math.Pow(this.SteeringMaximumValue, this.SteeringGrowth) * this.SteeringMaximumValue;
                     }
 
                     if (steeringIn < 0)
                     {
-                        double limit = 32768.0;
-                        steeringOut = -1 * Math.Pow(Math.Abs(steeringIn), growth) / Math.Pow(limit, growth) * limit;
+                        steeringOut = -1 * Math.Pow(Math.Abs(steeringIn), this.SteeringGrowth) / Math.Pow(Math.Abs(this.SteeringMinimumValue), this.SteeringGrowth) * Math.Abs(this.SteeringMinimumValue);
                     }
 
                     this.SteeringValue = (int)steeringOut;
                     this.AccelerationValue = state?.Gamepad.RightTrigger ?? 0;
                     this.BrakingValue = state?.Gamepad.LeftTrigger ?? 0;
+
+                    if (this.virtualController == null)
+                    {
+                        return;
+                    }
+
                     this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)this.SteeringValue);
                     this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, (byte)this.AccelerationValue);
                     this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, (byte)this.BrakingValue);
@@ -418,6 +433,7 @@ namespace SpeedWheelController.Models
                     this.virtualController.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(state, GamepadButtonFlags.Back));
                     this.virtualController.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(state, GamepadButtonFlags.LeftShoulder));
                     this.virtualController.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
+
                     this.virtualController.SubmitReport();
 
                     this.previousState = state;
