@@ -137,7 +137,8 @@ namespace SpeedWheelController.Models
             }
             else
             {
-                this.Message = "SpeedWheel connected as an Xbox 360 controller... ready to race!";
+                var batteryInfo = this.physicalController.GetBatteryInformation(BatteryDeviceType.Gamepad);
+                this.Message = $"SpeedWheel connected as an Xbox 360 controller... Ready to race! (Battery level: {batteryInfo.BatteryLevel})";
             }
         }
 
