@@ -7,11 +7,12 @@
         mc:Ignorable="d"
         Title="SpeedWheel Controller" 
         Height="420" 
-        Width="800">
+        Width="800"
+        ResizeMode="NoResize">
 
 
     <Window.Background>
-        <ImageBrush ImageSource="/Images/SpeedWheel.png" Stretch="None" Opacity=".9999"></ImageBrush>
+        <ImageBrush ImageSource="/Images/SpeedWheel.png" Stretch="UniformToFill" ></ImageBrush>
     </Window.Background>
     
     <DockPanel>
