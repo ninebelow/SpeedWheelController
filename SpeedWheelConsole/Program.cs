@@ -124,7 +124,7 @@ namespace SpeedWheelConsole
                     // The constants XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE or XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE can be used as a positive and negative value to filter a thumbstick input.
                     // Left thumbstick x-axis value.
 
-                    double growth = 1.5;
+                    double growth = 1.2;
                     double steeringIn = (double)state.Gamepad.LeftThumbX;
                     double steeringOut = 0;
 
