@@ -335,8 +335,8 @@ namespace SpeedWheelController.Models
                 return;
             }
 
-            this.LeftMotorSpeedValue = (ushort)(((decimal)e.LargeMotor / 255m) * 65_535m);
-            this.RightMotorSpeedValue = (ushort)(((decimal)e.SmallMotor / 255m) * 65_535m);
+            this.LeftMotorSpeedValue = (ushort)(((decimal)e.LargeMotor / 255m) * this.MotorSpeedMaximumValue);
+            this.RightMotorSpeedValue = (ushort)(((decimal)e.SmallMotor / 255m) * this.motorSpeedMaximumValue);
         }
 
         private void SetVibration()
