@@ -228,7 +228,12 @@ namespace SpeedWheelController.Models
 
         private void SyncControllerState()
         {
-            this.HandleFakeShoulderButtonPress();
+            if (this.IfFakeShoulderButtonPress())
+            {
+                this.virtualController?.SubmitReport();
+                return;
+            }
+
             this.Steering = this.GetSteering();
             this.Acceleration = this.ControllerState?.Gamepad.RightTrigger ?? 0;
             this.Braking = this.ControllerState?.Gamepad.LeftTrigger ?? 0;
@@ -262,19 +267,20 @@ namespace SpeedWheelController.Models
             this.virtualController.SubmitReport();
         }
 
-        private void HandleFakeShoulderButtonPress()
+        private bool IfFakeShoulderButtonPress()
         {
-            if (this.IsButtonPressed(GamepadButtonFlags.DPadRight) && this.IsButtonPressed(GamepadButtonFlags.X))
+            if ((this.IsButtonPressed(GamepadButtonFlags.DPadRight) || this.IsButtonPressed(GamepadButtonFlags.DPadLeft)) 
+                && (this.IsButtonPressed(GamepadButtonFlags.X) || this.IsButtonPressed(GamepadButtonFlags.B)))
             {
                 this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, this.ControllerState?.Gamepad.RightTrigger > 50);
                 this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, this.ControllerState?.Gamepad.LeftTrigger > 50);
-                this.virtualController?.SubmitReport();
-                return;
+                return true;
             }
             else
             {
                 this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, false);
                 this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, false);
+                return false;
             }
         }
 
