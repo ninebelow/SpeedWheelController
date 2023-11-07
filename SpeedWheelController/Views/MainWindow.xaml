@@ -1,9 +1,12 @@
-﻿<Window x:Class="SpeedWheelController.MainWindow"
+﻿<mah:MetroWindow  
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+        x:Class="SpeedWheelController.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SpeedWheelController" xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        xmlns:local="clr-namespace:SpeedWheelController" 
+        xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
         Title="SpeedWheel Controller" 
         Height="420" 
@@ -16,7 +19,7 @@
     </Window.Background>
     
     <DockPanel>
-        <Menu DockPanel.Dock="Top" Background="Transparent" Foreground="SlateGray" FontWeight="Bold">
+        <Menu DockPanel.Dock="Top" Background="Transparent">
             <MenuItem Header="_File">
                 <MenuItem Header="_Connect Controller" Command="{Binding Path=ConnectCommand}" />
                 <MenuItem Header="_Disconnect Controller" Command="{Binding Path=DisconnectCommand}" />
@@ -34,8 +37,7 @@
                 <Label DockPanel.Dock="Left"
                    FontWeight="Bold" 
                    Width="200"
-                   Content="Steering:"
-                   Foreground="SlateGray"/>
+                   Content="Steering:"/>
                 <Slider Grid.Row="0" 
                     Width="500"
                     Value="{Binding Path=SpeedWheel.SteeringValue}" 
@@ -48,16 +50,14 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="-100, 0, 100" 
-                    IsEnabled="False"
-                    Foreground="SlateGray"/>
+                    IsEnabled="False"/>
             </DockPanel>
 
             <DockPanel VerticalAlignment="Center" Margin="10">
                 <Label DockPanel.Dock="Left"
                    FontWeight="Bold" 
                    Width="200"
-                   Content="Acceleration:"
-                   Foreground="SlateGray"/>
+                   Content="Acceleration:"/>
                 <Slider Grid.Row="1"
                     Width="500"
                     Value="{Binding SpeedWheel.AccelerationValue}" 
@@ -70,16 +70,14 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="0, 100" 
-                    IsEnabled="False"
-                    Foreground="SlateGray"/>
+                    IsEnabled="False"/>
             </DockPanel>
 
             <DockPanel VerticalAlignment="Center" Margin="10">
                 <Label DockPanel.Dock="Left"
                    FontWeight="Bold" 
                    Width="200"
-                   Content="Braking:"
-                   Foreground="SlateGray"/>
+                   Content="Braking:"/>
                 <Slider Grid.Row="2"
                     Width="500"
                     Value="{Binding SpeedWheel.BrakingValue}" 
@@ -92,8 +90,7 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="0, 100" 
-                    IsEnabled="False"
-                    Foreground="SlateGray"/>
+                    IsEnabled="False"/>
             </DockPanel>
 
             <DockPanel Margin="20" />
@@ -102,8 +99,7 @@
                 <Label DockPanel.Dock="Left"
                    FontWeight="Bold" 
                    Width="200"
-                   Content="Vibration left (big motor):" 
-                   Foreground="SlateGray"/>
+                   Content="Vibration left (big motor):"/>
                 <Slider Grid.Row="3"
                     Width="500"
                     Value="{Binding SpeedWheel.LeftMotorSpeedValue}" 
@@ -116,16 +112,14 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="0, 100" 
-                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"
-                   Foreground="SlateGray"/>
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
             <DockPanel VerticalAlignment="Center" Margin="10">
                 <Label DockPanel.Dock="Left"
                    FontWeight="Bold" 
                    Width="200"
-                   Content="Vibration right (small motor):"
-                   Foreground="SlateGray"/>
+                   Content="Vibration right (small motor):"/>
                 <Slider Grid.Row="4"
                     Width="500"
                     Value="{Binding SpeedWheel.RightMotorSpeedValue}" 
@@ -138,13 +132,12 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="0, 100" 
-                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"
-                   Foreground="SlateGray"/>
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
         </StackPanel>
-        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Background="Transparent" Foreground="SlateGray">
-            <StatusBarItem FontWeight="bold" HorizontalAlignment="Stretch" Content="{Binding Path=SpeedWheel.Message}" />
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+            <StatusBarItem HorizontalAlignment="Stretch" Content="{Binding Path=SpeedWheel.Message}" />
         </StatusBar>
     </DockPanel>
-</Window>
+</mah:MetroWindow>
