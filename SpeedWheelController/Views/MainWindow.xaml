@@ -14,7 +14,7 @@
         ResizeMode="NoResize">
 
     <Window.Background>
-        <ImageBrush ImageSource="/Images/SpeedWheel.png" Stretch="UniformToFill" ></ImageBrush>
+        <ImageBrush ImageSource="/Images/SpeedWheelBackground.png" Stretch="UniformToFill" ></ImageBrush>
     </Window.Background>
     
     <DockPanel>

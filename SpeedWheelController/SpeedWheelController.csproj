@@ -10,14 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Images\SpeedWheel.png" />
+    <None Remove="Images\SpeedWheelBackground.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Images\SpeedWheelTransparent.ico" />
-    <Content Include="Images\SpeedWheel.png">
+    <Content Include="Images\SpeedWheelBackground.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Images\SpeedWheelTransparent.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +29,12 @@
     <PackageReference Include="MahApps.Metro" Version="2.4.10" />
     <PackageReference Include="Nefarius.ViGEm.Client" Version="1.21.256" />
     <PackageReference Include="SharpDX.XInput" Version="4.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Images\SpeedWheel.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
