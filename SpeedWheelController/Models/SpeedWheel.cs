@@ -54,100 +54,46 @@ namespace SpeedWheelController.Models
 
         public int SteeringValue
         {
-            get
-            {
-                return this.steeringValue;
-            }
-            set
-            {
-                if (value == this.steeringValue)
-                {
-                    return;
-                }
-
-                this.steeringValue = value;
-                base.OnPropertyChanged(nameof(this.SteeringValue));
-            }
+            get => this.steeringValue;
+            set => this.SetProperty(ref this.steeringValue, value);
         }
 
         public int AccelerationValue
         {
-            get
-            {
-                return this.accelerationValue;
-            }
-            set
-            {
-                if (value == this.accelerationValue)
-                {
-                    return;
-                }
-
-                this.accelerationValue = value;
-                base.OnPropertyChanged(nameof(this.AccelerationValue));
-            }
+            get => this.accelerationValue;
+            set => this.SetProperty(ref this.accelerationValue, value);
         }
 
         public int BrakingValue
         {
-            get
-            {
-                return this.brakingValue;
-            }
-            set
-            {
-                if (value == this.brakingValue)
-                {
-                    return;
-                }
-
-                this.brakingValue = value;
-                base.OnPropertyChanged(nameof(this.BrakingValue));
-            }
+            get => this.brakingValue;
+            set => this.SetProperty(ref this.brakingValue, value);
         }
 
         public int LeftMotorSpeedValue
         {
-            get
-            {
-                return this.leftMotorSpeedValue;
-            }
-
+            get => this.leftMotorSpeedValue;
             set
             {
-                this.leftMotorSpeedValue = value;
+                this.SetProperty(ref this.leftMotorSpeedValue, value);
                 this.SetVibration();
-                base.OnPropertyChanged(nameof(this.LeftMotorSpeedValue));
             }
         }
 
         public int RightMotorSpeedValue
         {
-            get
-            {
-                return this.rightMotorSpeedValue;
-            }
-
+            get => this.rightMotorSpeedValue;
             set
             {
-                this.rightMotorSpeedValue = value;
+                this.SetProperty(ref this.rightMotorSpeedValue, value);
                 this.SetVibration();
-                base.OnPropertyChanged(nameof(this.RightMotorSpeedValue));
             }
         }
 
         public string Message
         {
-            get
-            {
-                return this.message;
-            }
-
-            set
-            {
-                this.message = value;
-                base.OnPropertyChanged(nameof(this.Message));
-            }
+            get => this.message;
+            set => this.SetProperty(ref this.message, value);
         }
 
         public bool IsVirtualControllerConnected
