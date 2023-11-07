@@ -130,19 +130,20 @@ namespace SpeedWheelController.Models
                     this.virtualController.FeedbackReceived += this.VirtualController_FeedbackReceived;
                     this.virtualController.AutoSubmitReport = false;
                     this.virtualController.Connect();
-                    this.Message = "Virtual Xbox 360 controller created.";
-                    this.timer.Tick -= this.ConfigureSpeedWheel;
-                    this.timer.Stop();
-                    this.timer.Tick += new EventHandler(this.PollSpeedWheel);
-                    this.timer.Start();
-                    //Thread.Sleep(1000);
-                    //log.Information($"Created virtual xbox 360 controller successfully as controller #{vController.UserIndex + 1}.");
                 }
                 catch
                 {
                     this.Message = "Could not create virtual controller. Is ViGemBus installed?";
                     return;
                 }
+            }
+            else if(this.virtualController.UserIndex >  -1)
+            {
+                this.Message = "Virtual Xbox 360 controller created.";
+                this.timer.Tick -= this.ConfigureSpeedWheel;
+                this.timer.Stop();
+                this.timer.Tick += new EventHandler(this.PollSpeedWheel);
+                this.timer.Start();
             }
         }
 
@@ -172,10 +173,15 @@ namespace SpeedWheelController.Models
                 return;
             }
 
+            if (this.virtualController == null)
+            {
+                this.ConnectController();
+                return;
+            }
+
             try
             {
                 // Poll events from physical controller
-                this.previousState = this.physicalController?.GetState();
                 var state = this.physicalController?.GetState();
                 if (this.previousState?.PacketNumber != state?.PacketNumber)
                 {
@@ -216,34 +222,32 @@ namespace SpeedWheelController.Models
                         steeringOut = -1 * Math.Pow(Math.Abs(steeringIn), growth) / Math.Pow(limit, growth) * limit;
                     }
 
-
                     this.SteeringValue = (int)steeringOut;
-                    this.virtualController?.SetAxisValue(Xbox360Axis.LeftThumbX, (short)steeringOut);
-                    //this.virtualController?.SetAxisValue(Xbox360Axis.LeftThumbY, state?.Gamepad.LeftThumbY ?? 0);
-                    //this.virtualController?.SetAxisValue(Xbox360Axis.RightThumbX, state?.Gamepad.RightThumbX ?? 0);
-                    //this.virtualController?.SetAxisValue(Xbox360Axis.RightThumbY, state?.Gamepad.RightThumbY ?? 0);
+                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)steeringOut);
+                    this.virtualController.SetAxisValue(Xbox360Axis.LeftThumbY, state?.Gamepad.LeftThumbY ?? 0);
+                    this.virtualController.SetAxisValue(Xbox360Axis.RightThumbX, state?.Gamepad.RightThumbX ?? 0);
+                    this.virtualController.SetAxisValue(Xbox360Axis.RightThumbY, state?.Gamepad.RightThumbY ?? 0);
 
+                    this.virtualController.SetButtonState(Xbox360Button.A, this.IsButtonPressed(state, GamepadButtonFlags.A));
+                    this.virtualController.SetButtonState(Xbox360Button.B, this.IsButtonPressed(state, GamepadButtonFlags.B));
+                    this.virtualController.SetButtonState(Xbox360Button.X, this.IsButtonPressed(state, GamepadButtonFlags.X));
+                    this.virtualController.SetButtonState(Xbox360Button.Y, this.IsButtonPressed(state, GamepadButtonFlags.Y));
+                    this.virtualController.SetButtonState(Xbox360Button.Left, this.IsButtonPressed(state, GamepadButtonFlags.DPadLeft));
+                    this.virtualController.SetButtonState(Xbox360Button.Right, this.IsButtonPressed(state, GamepadButtonFlags.DPadRight));
+                    this.virtualController.SetButtonState(Xbox360Button.Up, this.IsButtonPressed(state, GamepadButtonFlags.DPadUp));
+                    this.virtualController.SetButtonState(Xbox360Button.Down, this.IsButtonPressed(state, GamepadButtonFlags.DPadDown));
+                    this.virtualController.SetButtonState(Xbox360Button.Start, this.IsButtonPressed(state, GamepadButtonFlags.Start));
+                    this.virtualController.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(state, GamepadButtonFlags.Back));
+                    this.virtualController.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(state, GamepadButtonFlags.LeftShoulder));
+                    this.virtualController.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
+                    this.virtualController.SetSliderValue(Xbox360Slider.LeftTrigger, state?.Gamepad.LeftTrigger ?? 0);
+                    this.virtualController.SetSliderValue(Xbox360Slider.RightTrigger, state?.Gamepad.RightTrigger ?? 0);
+                    this.virtualController.SubmitReport();
 
-                    //this.virtualController?.SetButtonState(Xbox360Button.A, this.IsButtonPressed(state, GamepadButtonFlags.A));
-                    //this.virtualController?.SetButtonState(Xbox360Button.B, this.IsButtonPressed(state, GamepadButtonFlags.B));
-                    //this.virtualController?.SetButtonState(Xbox360Button.X, this.IsButtonPressed(state, GamepadButtonFlags.X));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Y, this.IsButtonPressed(state, GamepadButtonFlags.Y));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Left, this.IsButtonPressed(state, GamepadButtonFlags.DPadLeft));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Right, this.IsButtonPressed(state, GamepadButtonFlags.DPadRight));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Up, this.IsButtonPressed(state, GamepadButtonFlags.DPadUp));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Down, this.IsButtonPressed(state, GamepadButtonFlags.DPadDown));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Start, this.IsButtonPressed(state, GamepadButtonFlags.Start));
-                    //this.virtualController?.SetButtonState(Xbox360Button.Back, this.IsButtonPressed(state, GamepadButtonFlags.Back));
-                    //this.virtualController?.SetButtonState(Xbox360Button.LeftShoulder, this.IsButtonPressed(state, GamepadButtonFlags.LeftShoulder));
-                    //this.virtualController?.SetButtonState(Xbox360Button.RightShoulder, this.IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
-                    //this.virtualController?.SetSliderValue(Xbox360Slider.LeftTrigger, state?.Gamepad.LeftTrigger ?? 0);
-                    //this.virtualController?.SetSliderValue(Xbox360Slider.RightTrigger, state?.Gamepad.RightTrigger ?? 0);
-                    this.virtualController?.SubmitReport();
-                    
                     this.previousState = state;
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 this.Message = "Controller disconnected!";
                 this.physicalController = null;
@@ -252,7 +256,12 @@ namespace SpeedWheelController.Models
 
         private bool IsButtonPressed(State? state, GamepadButtonFlags buttonFlag)
         {
-            return (state?.Gamepad.Buttons & buttonFlag) == buttonFlag;
+            if (state == null)
+            {
+                return false;
+            }
+
+            return (state.Value.Gamepad.Buttons & buttonFlag) == buttonFlag;
         }
 
         private IEnumerable<Controller> GetControllers()
@@ -262,7 +271,7 @@ namespace SpeedWheelController.Models
 
         private void ConnectController()
         {
-            this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex > (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
+            this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
             if (this.physicalController == null)
             {
                 this.Message = "Please connect your SpeedWheel now";
