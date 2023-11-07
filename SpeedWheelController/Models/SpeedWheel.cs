@@ -329,7 +329,7 @@ namespace SpeedWheelController.Models
             this.physicalController = this.GetControllers().FirstOrDefault(x => (int)x.UserIndex != (int)(this.virtualController?.UserIndex ?? int.MaxValue) && x.IsConnected);
             if (this.physicalController == null)
             {
-                this.Message = "Please connect your SpeedWheel now";
+                this.Message = "Please connect your SpeedWheel now.";
             }
             else
             {

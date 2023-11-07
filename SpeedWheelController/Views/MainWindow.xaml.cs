@@ -10,7 +10,7 @@ namespace SpeedWheelController
     {
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
             this.DataContext = new MainWindowViewModel();
         }
     }

@@ -5,10 +5,30 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpeedWheelController" xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
         mc:Ignorable="d"
-        Title="SpeedWheel Controller" Height="450" Width="800">
-    <Grid>
-        <Grid ShowGridLines="True">
-            <Slider Width="323" Value="{Binding Path=SpeedWheel.SteeringValue}" 
+        Title="SpeedWheel Controller" 
+        Height="420" Width="800">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Command="{Binding Path=AboutCommand}"/>
+            </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Top">
+
+            <DockPanel Margin="20" />
+            
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Steering:" />
+                <Slider Grid.Row="0" 
+                    Width="500"
+                    Value="{Binding Path=SpeedWheel.SteeringValue}" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center" 
                     VerticalAlignment="Center"
@@ -18,61 +38,92 @@
                     AutoToolTipPlacement="BottomRight" 
                     AutoToolTipPrecision="2" 
                     Ticks="-100, 0, 100" 
-                    Margin="0,25,0,315"
                     IsEnabled="False"/>
-            <TextBlock Text="{Binding Path=SpeedWheel.Message}" HorizontalAlignment="Center" VerticalAlignment="Top" Width="323" Height="67" Margin="0,204,0,0" TextWrapping="Wrap"  />
-            <Slider Width="323" Value="{Binding SpeedWheel.AccelerationValue}" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top"
-                Minimum="{Binding SpeedWheel.AccelerationMinimumValue}" 
-                Maximum="{Binding SpeedWheel.AccelerationMaximumValue}" 
-                TickPlacement="BottomRight" 
-                AutoToolTipPlacement="BottomRight" 
-                AutoToolTipPrecision="2" 
-                Ticks="0, 100" 
-                Margin="0,104,0,0"
-                IsEnabled="False"/>
-            <Slider Width="323" Value="{Binding SpeedWheel.BrakingValue}" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top"
-                Minimum="{Binding SpeedWheel.BrakingMinimumValue}" 
-                Maximum="{Binding SpeedWheel.BrakingMaximumValue}" 
-                TickPlacement="BottomRight" 
-                AutoToolTipPlacement="BottomRight" 
-                AutoToolTipPrecision="2" 
-                Ticks="0, 100" 
-                Margin="0,144,0,0"
-                IsEnabled="False"/>
-            <Slider Width="323" Value="{Binding SpeedWheel.LeftMotorSpeedValue}" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top"
-                Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
-                Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
-                TickPlacement="BottomRight" 
-                AutoToolTipPlacement="BottomRight" 
-                AutoToolTipPrecision="2" 
-                Ticks="0, 100" Margin="0,322,0,0"/>
-            <Slider Width="323" Value="{Binding SpeedWheel.RightMotorSpeedValue}" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top"
-                Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
-                Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
-                TickPlacement="BottomRight" 
-                AutoToolTipPlacement="BottomRight" 
-                AutoToolTipPrecision="2" 
-                Ticks="0, 100" Margin="0,357,0,0"/>
-            <Label Content="Steering" HorizontalAlignment="Left" Margin="238,39,0,0" VerticalAlignment="Top" Height="16" Width="82" FontSize="8px" Padding="2"/>
-            <Label Content="Acceleration" HorizontalAlignment="Left" Margin="238,84,0,0" VerticalAlignment="Top" Height="16" Width="82" FontSize="8px" Padding="2"/>
-            <Label Content="Braking" HorizontalAlignment="Left" Margin="238,124,0,0" VerticalAlignment="Top" Height="16" Width="82" FontSize="8px" Padding="2"/>
-            <Label Content="Left Big Motor Vibration Speed" HorizontalAlignment="Left" Margin="238,301,0,0" VerticalAlignment="Top" Height="16" Width="119" FontSize="8px" Padding="2" RenderTransformOrigin="0.491,6.157"/>
-            <Label Content="Right Small Motor Vibration Speed" HorizontalAlignment="Left" Margin="238,343,0,0" VerticalAlignment="Top" Height="16" Width="162" FontSize="8px" Padding="2" RenderTransformOrigin="0.491,6.157"/>
-            <Label Content="{Binding SpeedWheel.SteeringValue}" HorizontalAlignment="Left" Margin="580,54,0,0" VerticalAlignment="Top"/>
-            <Label Content="{Binding SpeedWheel.AccelerationValue}" HorizontalAlignment="Left" Margin="580,98,0,0" VerticalAlignment="Top"/>
-            <Label Content="{Binding SpeedWheel.BrakingValue}" HorizontalAlignment="Left" Margin="580,142,0,0" VerticalAlignment="Top"/>
-        </Grid>
-    </Grid>
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Acceleration:" />
+                <Slider Grid.Row="1"
+                    Width="500"
+                    Value="{Binding SpeedWheel.AccelerationValue}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.AccelerationMinimumValue}" 
+                    Maximum="{Binding SpeedWheel.AccelerationMaximumValue}" 
+                    TickPlacement="BottomRight" 
+                    AutoToolTipPlacement="BottomRight" 
+                    AutoToolTipPrecision="2" 
+                    Ticks="0, 100" 
+                    IsEnabled="False"/>
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Braking:" />
+                <Slider Grid.Row="2"
+                    Width="500"
+                    Value="{Binding SpeedWheel.BrakingValue}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.BrakingMinimumValue}" 
+                    Maximum="{Binding SpeedWheel.BrakingMaximumValue}" 
+                    TickPlacement="BottomRight" 
+                    AutoToolTipPlacement="BottomRight" 
+                    AutoToolTipPrecision="2" 
+                    Ticks="0, 100" 
+                    IsEnabled="False"/>
+            </DockPanel>
+
+            <DockPanel Margin="20" />
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Vibration left (big motor):" />
+                <Slider Grid.Row="3"
+                    Width="500"
+                    Value="{Binding SpeedWheel.LeftMotorSpeedValue}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
+                    Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
+                    TickPlacement="BottomRight" 
+                    AutoToolTipPlacement="BottomRight" 
+                    AutoToolTipPrecision="2" 
+                    Ticks="0, 100" />
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Vibration right (small motor):" />
+                <Slider Grid.Row="4"
+                    Width="500"
+                    Value="{Binding SpeedWheel.RightMotorSpeedValue}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
+                    Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
+                    TickPlacement="BottomRight" 
+                    AutoToolTipPlacement="BottomRight" 
+                    AutoToolTipPrecision="2" 
+                    Ticks="0, 100" />
+            </DockPanel>
+
+        </StackPanel>
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+            <StatusBarItem FontWeight="bold" HorizontalAlignment="Stretch" Content="{Binding Path=SpeedWheel.Message}" />
+        </StatusBar>
+    </DockPanel>
 </Window>
