@@ -6,10 +6,11 @@ using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Targets;
 using Nefarius.ViGEm.Client.Targets.Xbox360;
 using SharpDX.XInput;
+using SpeedWheelController.Utilities;
 
 namespace SpeedWheelController.Models
 {
-    public class SpeedWheel : BaseModel
+    public class SpeedWheel : BaseModel, IDisposable
     {
         private int steeringValue = 0;
 
@@ -167,7 +168,8 @@ namespace SpeedWheelController.Models
         {
             if (this.virtualController == null && this.GetControllers().Any(x => x.IsConnected))
             {
-                this.Message = "Please disconnect all controllers before starting SpeedWheel emulation.";
+                this.Message = "Disconnecting all controllers before starting SpeedWheel emulation.";
+                ControllerUtilities.TurnOffAllControllers();
             }
             else if (this.virtualController == null)
             {
@@ -333,6 +335,12 @@ namespace SpeedWheelController.Models
             {
                 this.Message = "SpeedWheel connected as an Xbox 360 controller... ready to race!";
             }
+        }
+
+        public void Dispose()
+        {
+            ControllerUtilities.TurnOffAllControllers();
+            this.virtualController?.Disconnect();
         }
     }
 }
