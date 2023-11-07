@@ -105,7 +105,7 @@ namespace SpeedWheelConsole
                     log.Debug(state.Gamepad.ToString());
 
                     // fake shoulder button press
-                    if (IsButtonPressed(state, GamepadButtonFlags.X) && IsButtonPressed(state, GamepadButtonFlags.DPadRight))
+                    if (IsButtonPressed(state, GamepadButtonFlags.Y) && IsButtonPressed(state, GamepadButtonFlags.DPadUp))
                     {
                         vController.SetButtonState(Xbox360Button.RightShoulder, state.Gamepad.RightTrigger > 50);
                         vController.SetButtonState(Xbox360Button.LeftShoulder, state.Gamepad.LeftTrigger > 50);
