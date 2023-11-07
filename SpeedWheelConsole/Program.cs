@@ -92,7 +92,6 @@ namespace SpeedWheelConsole
             // Poll events from joystick
             var previousState = controller.GetState();
             while (controller.IsConnected)
-                while (true)
             {
                 if (IsKeyPressed(ConsoleKey.Escape))
                 {
@@ -119,6 +118,36 @@ namespace SpeedWheelConsole
                         vController.SetButtonState(Xbox360Button.LeftShoulder, false);
                     }
 
+                    // Each of the thumbstick axis members is a signed value between -32768 and 32767 describing the position of the thumbstick.
+                    // A value of 0 is centered. Negative values signify down or to the left.
+                    // Positive values signify up or to the right.
+                    // The constants XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE or XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE can be used as a positive and negative value to filter a thumbstick input.
+                    // Left thumbstick x-axis value.
+
+                    double growth = 1.5;
+                    double steeringIn = (double)state.Gamepad.LeftThumbX;
+                    double steeringOut = 0;
+
+                    if (steeringIn > 0)
+                    {
+                        double limit = 32767.0;
+                        steeringOut = Math.Pow(steeringIn, growth) / Math.Pow(limit, growth) * limit;
+                    }
+
+                    if (steeringIn < 0)
+                    {
+                        double limit = 32768.0;
+                        steeringOut = -1 * Math.Pow(Math.Abs(steeringIn), growth) / Math.Pow(limit, growth) * limit;
+                    }
+
+                    log.Information($"{steeringIn} => {steeringOut}");
+
+                    vController.SetAxisValue(Xbox360Axis.LeftThumbX, (short)steeringOut);
+                    vController.SetAxisValue(Xbox360Axis.LeftThumbY, state.Gamepad.LeftThumbY);
+                    vController.SetAxisValue(Xbox360Axis.RightThumbX, state.Gamepad.RightThumbX);
+                    vController.SetAxisValue(Xbox360Axis.RightThumbY, state.Gamepad.RightThumbY);
+
+
                     vController.SetButtonState(Xbox360Button.A, IsButtonPressed(state, GamepadButtonFlags.A));
                     vController.SetButtonState(Xbox360Button.B, IsButtonPressed(state, GamepadButtonFlags.B));
                     vController.SetButtonState(Xbox360Button.X, IsButtonPressed(state, GamepadButtonFlags.X));
@@ -133,11 +162,6 @@ namespace SpeedWheelConsole
                     vController.SetButtonState(Xbox360Button.RightShoulder, IsButtonPressed(state, GamepadButtonFlags.RightShoulder));
                     vController.SetSliderValue(Xbox360Slider.LeftTrigger, state.Gamepad.LeftTrigger);
                     vController.SetSliderValue(Xbox360Slider.RightTrigger, state.Gamepad.RightTrigger);
-                    vController.SetAxisValue(Xbox360Axis.LeftThumbX, state.Gamepad.LeftThumbX);
-                    vController.SetAxisValue(Xbox360Axis.LeftThumbY, state.Gamepad.LeftThumbY);
-                    vController.SetAxisValue(Xbox360Axis.RightThumbX, state.Gamepad.RightThumbX);
-                    vController.SetAxisValue(Xbox360Axis.RightThumbY, state.Gamepad.RightThumbY);
-
                     vController.SubmitReport();
                 }
 
