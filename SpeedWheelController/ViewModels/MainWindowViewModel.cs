@@ -14,6 +14,7 @@ namespace SpeedWheelController.ViewModels
         {
             Application.Current.MainWindow.Closing += this.MainWindow_Closing;
             this.SpeedWheel = new SpeedWheel();
+            this.SpeedWheel.LimitTo180Degrees = true;
         }
 
         public ICommand CloseCommand => new RelayCommand(Application.Current.MainWindow.Close);

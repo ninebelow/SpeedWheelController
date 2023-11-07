@@ -52,6 +52,8 @@ namespace SpeedWheelController.Models
 
         public int MotorSpeedMinimumValue => 0;
 
+        public bool LimitTo180Degrees { get; set; }
+
         public int SteeringValue
         {
             get => this.steeringValue;
@@ -256,13 +258,16 @@ namespace SpeedWheelController.Models
                     double steeringIn = (double)(state?.Gamepad.LeftThumbX ?? 0);
                     double steeringOut = steeringIn;
 
-                    if (steeringIn > 0)
+                    if (this.LimitTo180Degrees)
                     {
-                        steeringOut = Math.Min(steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMaximumValue;
-                    }
-                    else if (steeringIn < 0)
-                    {
-                        steeringOut = Math.Min(-steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMinimumValue;
+                        if (steeringIn > 0)
+                        {
+                            steeringOut = Math.Min(steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMaximumValue;
+                        }
+                        else if (steeringIn < 0)
+                        {
+                            steeringOut = Math.Min(-steeringIn, this.ninetyDegrees) / this.ninetyDegrees * this.SteeringMinimumValue;
+                        }
                     }
 
                     this.SteeringValue = (int)steeringOut;

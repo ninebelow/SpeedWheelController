@@ -24,6 +24,9 @@
                 <MenuItem Header="_Disconnect Controller" Command="{Binding Path=DisconnectCommand}" />
                 <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
             </MenuItem>
+            <MenuItem Header="_Settings">
+                <MenuItem Header="Limit steering to 180 degrees" IsCheckable="True" IsChecked="{Binding Path=SpeedWheel.LimitTo180Degrees}" />
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About" Command="{Binding Path=AboutCommand}"/>
             </MenuItem>
@@ -46,9 +49,7 @@
                     Minimum="{Binding Path=SpeedWheel.SteeringMinimumValue}" 
                     Maximum="{Binding Path=SpeedWheel.SteeringMaximumValue}" 
                     TickPlacement="BottomRight" 
-                    AutoToolTipPlacement="BottomRight" 
-                    AutoToolTipPrecision="2" 
-                    Ticks="-100, 0, 100" 
+                    Ticks="0" 
                     IsEnabled="False"/>
             </DockPanel>
 
@@ -65,10 +66,6 @@
                     VerticalAlignment="Center"
                     Minimum="{Binding SpeedWheel.AccelerationMinimumValue}" 
                     Maximum="{Binding SpeedWheel.AccelerationMaximumValue}" 
-                    TickPlacement="BottomRight" 
-                    AutoToolTipPlacement="BottomRight" 
-                    AutoToolTipPrecision="2" 
-                    Ticks="0, 100" 
                     IsEnabled="False"/>
             </DockPanel>
 
@@ -85,9 +82,6 @@
                     VerticalAlignment="Center"
                     Minimum="{Binding SpeedWheel.BrakingMinimumValue}" 
                     Maximum="{Binding SpeedWheel.BrakingMaximumValue}" 
-                    TickPlacement="BottomRight" 
-                    AutoToolTipPlacement="BottomRight" 
-                    AutoToolTipPrecision="2" 
                     Ticks="0, 100" 
                     IsEnabled="False"/>
             </DockPanel>
@@ -107,10 +101,6 @@
                     VerticalAlignment="Center"
                     Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
                     Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
-                    TickPlacement="BottomRight" 
-                    AutoToolTipPlacement="BottomRight" 
-                    AutoToolTipPrecision="2" 
-                    Ticks="0, 100" 
                     IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
@@ -127,10 +117,6 @@
                     VerticalAlignment="Center"
                     Minimum="{Binding SpeedWheel.MotorSpeedMinimumValue}" 
                     Maximum="{Binding SpeedWheel.MotorSpeedMaximumValue}" 
-                    TickPlacement="BottomRight" 
-                    AutoToolTipPlacement="BottomRight" 
-                    AutoToolTipPrecision="2" 
-                    Ticks="0, 100" 
                     IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
             </DockPanel>
 
