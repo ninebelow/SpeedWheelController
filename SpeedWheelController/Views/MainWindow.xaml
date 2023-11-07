@@ -1,0 +1,129 @@
+﻿<mah:MetroWindow  
+        xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls" 
+        x:Class="SpeedWheelController.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SpeedWheelController" 
+        xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        mc:Ignorable="d"
+        Title="SpeedWheel Controller" 
+        Height="420" 
+        Width="800"
+        ResizeMode="NoResize">
+
+    <Window.Background>
+        <ImageBrush ImageSource="/Images/SpeedWheel.png" Stretch="UniformToFill" ></ImageBrush>
+    </Window.Background>
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="Transparent">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Connect Controller" Command="{Binding Path=ConnectCommand}" />
+                <MenuItem Header="_Disconnect Controller" Command="{Binding Path=DisconnectCommand}" />
+                <MenuItem Header="E_xit" Command="{Binding Path=CloseCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Settings">
+                <MenuItem Header="Limit steering to 180 degrees" IsCheckable="True" IsChecked="{Binding Path=SpeedWheel.LimitTo180Degrees}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About" Command="{Binding Path=AboutCommand}"/>
+            </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Top">
+                        
+            <DockPanel Margin="20" />
+            
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Steering:"/>
+                <Slider Grid.Row="0" 
+                    Width="500"
+                    Value="{Binding Path=SpeedWheel.Steering}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding Path=SpeedWheel.Constants.SteeringMinimum}" 
+                    Maximum="{Binding Path=SpeedWheel.Constants.SteeringMaximum}" 
+                    TickPlacement="BottomRight" 
+                    Ticks="0" 
+                    IsEnabled="False"/>
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Acceleration:"/>
+                <Slider Grid.Row="1"
+                    Width="500"
+                    Value="{Binding SpeedWheel.Acceleration}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.Constants.AccelerationMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.AccelerationMaximum}" 
+                    IsEnabled="False"/>
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Braking:"/>
+                <Slider Grid.Row="2"
+                    Width="500"
+                    Value="{Binding SpeedWheel.Braking}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.Constants.BrakingMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.BrakingMaximum}" 
+                    Ticks="0, 100" 
+                    IsEnabled="False"/>
+            </DockPanel>
+
+            <DockPanel Margin="20" />
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Vibration left (big motor):"/>
+                <Slider Grid.Row="3"
+                    Width="500"
+                    Value="{Binding SpeedWheel.LeftMotorSpeed}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.Constants.MotorSpeedMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.MotorSpeedMaximum}" 
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
+            </DockPanel>
+
+            <DockPanel VerticalAlignment="Center" Margin="10">
+                <Label DockPanel.Dock="Left"
+                   FontWeight="Bold" 
+                   Width="200"
+                   Content="Vibration right (small motor):"/>
+                <Slider Grid.Row="4"
+                    Width="500"
+                    Value="{Binding SpeedWheel.RightMotorSpeed}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding SpeedWheel.Constants.MotorSpeedMinimum}" 
+                    Maximum="{Binding SpeedWheel.Constants.MotorSpeedMaximum}" 
+                    IsEnabled="{Binding Path=SpeedWheel.IsPhysicalControllerConnected}"/>
+            </DockPanel>
+
+        </StackPanel>
+        <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
+            <StatusBarItem HorizontalAlignment="Stretch" Content="{Binding Path=SpeedWheel.Message}" />
+            <StatusBarItem HorizontalAlignment="Right" Content="{Binding Path=SpeedWheel.BatteryLevel}" />
+        </StatusBar>
+    </DockPanel>
+</mah:MetroWindow>
