@@ -1,0 +1,25 @@
+﻿<Window x:Class="SpeedWheelController.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SpeedWheelController" xmlns:viewmodels="clr-namespace:SpeedWheelController.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}"
+        mc:Ignorable="d"
+        Title="SpeedWheel Controller" Height="450" Width="800">
+    <Grid>
+        <Grid ShowGridLines="True">
+            <Slider Width="323" Value="{Binding Path=SpeedWheel.SteeringValue}" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center" 
+                    VerticalAlignment="Center"
+                    Minimum="{Binding Path=SpeedWheel.SteeringMinimumValue}" 
+                    Maximum="{Binding Path=SpeedWheel.SteeringMaximumValue}" 
+                    TickPlacement="BottomRight" 
+                    AutoToolTipPlacement="BottomRight" 
+                    AutoToolTipPrecision="2" 
+                    Ticks="-100, 0, 100" 
+                    Margin="0,25,0,315"/>
+            <Label Content="{Binding Path=SpeedWheel.Message}" HorizontalAlignment="Center" Margin="0,131,0,0" VerticalAlignment="Top" Width="324"/>
+        </Grid>
+    </Grid>
+</Window>
