@@ -123,6 +123,7 @@
         </StackPanel>
         <StatusBar DockPanel.Dock="Bottom" VerticalAlignment="Bottom">
             <StatusBarItem HorizontalAlignment="Stretch" Content="{Binding Path=SpeedWheel.Message}" />
+            <StatusBarItem HorizontalAlignment="Right" Content="{Binding Path=SpeedWheel.BatteryLevel}" />
         </StatusBar>
     </DockPanel>
 </mah:MetroWindow>

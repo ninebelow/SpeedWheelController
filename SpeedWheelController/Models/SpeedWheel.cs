@@ -17,10 +17,13 @@ namespace SpeedWheelController.Models
         private int leftMotorSpeed = 0;
         private int rightMotorSpeed = 0;
         private string message = string.Empty;
+        private string batteryLevel = string.Empty;
         private IXbox360Controller? virtualController;
         private Controller? physicalController;
         private readonly DispatcherTimer timer = new DispatcherTimer();
         private readonly TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
+        private readonly DispatcherTimer batteryTimer = new DispatcherTimer();
+        private readonly TimeSpan batteryPollInterval = TimeSpan.FromSeconds(60);
 
         public SpeedWheelConstants Constants => new SpeedWheelConstants();
 
@@ -74,6 +77,11 @@ namespace SpeedWheelController.Models
             set => this.SetProperty(ref this.message, value);
         }
 
+        public string BatteryLevel {
+            get => (this.physicalController?.IsConnected  ?? false) ? this.batteryLevel : string.Empty;
+            set => this.SetProperty(ref this.batteryLevel, $"Battery level: {value}");
+        }
+
         public bool IsVirtualControllerConnected
         {
             get
@@ -107,6 +115,9 @@ namespace SpeedWheelController.Models
             this.timer.Interval = this.pollInterval;
             this.timer.Tick += new EventHandler(this.ConfigureSpeedWheel);
             this.timer.Start();
+            this.batteryTimer.Interval = this.batteryPollInterval;
+            this.batteryTimer.Tick += new EventHandler(this.UpdateBatteryLevel);
+            this.batteryTimer.Start();
         }
 
         private void ConfigureSpeedWheel(object? sender, EventArgs e)
@@ -141,6 +152,16 @@ namespace SpeedWheelController.Models
                 this.timer.Tick += new EventHandler(this.PollSpeedWheel);
                 this.timer.Start();
             }
+        }
+
+        private void UpdateBatteryLevel(object? sender, EventArgs e)
+        {
+            this.UpdateBatteryLevel();
+        }
+
+        private void UpdateBatteryLevel()
+        {
+            this.BatteryLevel = this.physicalController?.GetBatteryInformation(BatteryDeviceType.Gamepad).BatteryLevel.ToString() ?? "";
         }
 
         private void PollSpeedWheel(object? sender, EventArgs e)
@@ -183,8 +204,8 @@ namespace SpeedWheelController.Models
             }
             else
             {
-                var batteryInfo = this.physicalController.GetBatteryInformation(BatteryDeviceType.Gamepad);
-                this.Message = $"SpeedWheel connected as an Xbox 360 controller... Ready to race! (Battery level: {batteryInfo.BatteryLevel})";
+                this.Message = $"SpeedWheel connected as an Xbox 360 controller... Ready to race!";
+                this.UpdateBatteryLevel();
             }
         }
 
