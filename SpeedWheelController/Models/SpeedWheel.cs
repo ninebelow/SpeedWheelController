@@ -18,8 +18,8 @@ namespace SpeedWheelController.Models
         private int rightMotorSpeed = 0;
         private string message = string.Empty;
         private IXbox360Controller? virtualController;
-        private readonly DispatcherTimer timer = new DispatcherTimer();
         private Controller? physicalController;
+        private readonly DispatcherTimer timer = new DispatcherTimer();
         private readonly TimeSpan pollInterval = TimeSpan.FromMilliseconds(10);
 
         public SpeedWheelConstants Constants => new SpeedWheelConstants();
