@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Targets;
@@ -43,7 +45,17 @@ namespace SpeedWheelController.Models
 
         private double steeringGrowth = 1.0;
 
+        private double? steeringLeft90Value = null;
+
+        private double? steeringRight90Value = null;
+
+        private double? steeringCenteredValue = null;
+
         private string message = string.Empty;
+
+        private bool calibrated = false;
+
+        private bool aButtonWasReleased = true;
 
         private IXbox360Controller? virtualController;
 
@@ -107,6 +119,76 @@ namespace SpeedWheelController.Models
                 base.OnPropertyChanged(nameof(this.SteeringMinimumValue));
             }
         }
+
+        public double? SteeringLeft90Value
+        {
+            get
+            {
+                return this.steeringLeft90Value;
+            }
+            set
+            {
+                if (value == this.steeringLeft90Value)
+                {
+                    return;
+                }
+
+                this.steeringLeft90Value = value;
+                base.OnPropertyChanged(nameof(this.SteeringLeft90Value));
+            }
+        }
+
+        public double? SteeringRight90Value
+        {
+            get
+            {
+                return this.steeringRight90Value;
+            }
+            set
+            {
+                if (value == this.steeringRight90Value)
+                {
+                    return;
+                }
+
+                this.steeringRight90Value = value;
+                base.OnPropertyChanged(nameof(this.SteeringRight90Value));
+            }
+        }
+
+        public double? SteeringCenteredValue
+        {
+            get
+            {
+                return this.steeringCenteredValue;
+            }
+            set
+            {
+                if (value == this.steeringCenteredValue)
+                {
+                    return;
+                }
+
+                this.steeringCenteredValue = value;
+                base.OnPropertyChanged(nameof(this.SteeringCenteredValue));
+            }
+        }
+
+        public DoubleCollection SteeringTicks
+        {
+            get
+            {
+                return new DoubleCollection
+                {
+                    this.SteeringMinimumValue,
+                    this.SteeringLeft90Value ?? 0,
+                    this.SteeringCenteredValue ?? 0,
+                    this.SteeringRight90Value ?? 0,
+                    this.SteeringMaximumValue
+                };
+            }
+        }
+
 
         public int AccelerationValue
         {
@@ -264,23 +346,6 @@ namespace SpeedWheelController.Models
             }
         }
 
-        public double SteeringGrowth
-        {
-            get
-            {
-                return this.steeringGrowth;
-            }
-            set
-            {
-                this.steeringGrowth = value;
-                base.OnPropertyChanged(nameof(this.SteeringGrowth));
-            }
-        }
-
-        public double SteeringGrowthMinimumValue => 1;
-
-        public double SteeringGrowthMaximumValue => 3;
-
         public SpeedWheel()
         {
             this.Initialize();
@@ -299,7 +364,7 @@ namespace SpeedWheelController.Models
         {
             if (this.virtualController == null && this.GetControllers().Any(x => x.IsConnected))
             {
-                this.Message = " Please disconnect all controllers before starting SpeedWheel emulation.";
+                this.Message = "Please disconnect all controllers before starting SpeedWheel emulation.";
             }
             else if (this.virtualController == null)
             {
@@ -392,16 +457,19 @@ namespace SpeedWheelController.Models
                     // Left thumbstick x-axis value.
 
                     double steeringIn = (double)(state?.Gamepad.LeftThumbX ?? 0);
-                    double steeringOut = 0;
+                    double steeringOut = steeringIn;
 
-                    if (steeringIn > 0)
+                    if (this.calibrated)
                     {
-                        steeringOut = Math.Pow(steeringIn, this.SteeringGrowth) / Math.Pow(this.SteeringMaximumValue, this.SteeringGrowth) * this.SteeringMaximumValue;
-                    }
-
-                    if (steeringIn < 0)
-                    {
-                        steeringOut = -1 * Math.Pow(Math.Abs(steeringIn), this.SteeringGrowth) / Math.Pow(Math.Abs(this.SteeringMinimumValue), this.SteeringGrowth) * Math.Abs(this.SteeringMinimumValue);
+                        steeringIn = steeringIn - (double?)this.SteeringCenteredValue ?? 0.0;
+                        if (steeringIn > 0)
+                        {
+                            steeringOut = Math.Min(steeringIn / (double)(this.SteeringRight90Value ?? this.SteeringMaximumValue), 1.0) * this.SteeringMaximumValue;
+                        }
+                        if (steeringIn < 0)
+                        {
+                            steeringOut = -1 * (Math.Max(-steeringIn / (double)(this.SteeringLeft90Value ?? this.SteeringMinimumValue), -1.0) * this.SteeringMinimumValue);
+                        }
                     }
 
                     this.SteeringValue = (int)steeringOut;
@@ -437,6 +505,17 @@ namespace SpeedWheelController.Models
                     this.virtualController.SubmitReport();
 
                     this.previousState = state;
+
+                    // calibration
+                    if (!this.IsButtonPressed(state, GamepadButtonFlags.A))
+                    {
+                        this.aButtonWasReleased = true;
+                    }
+
+                    if (!this.calibrated && this.aButtonWasReleased)
+                    {
+                        this.Calibrate(this.IsButtonPressed(state, GamepadButtonFlags.A));
+                    }
                 }
             }
             catch
@@ -470,7 +549,47 @@ namespace SpeedWheelController.Models
             }
             else
             {
-                this.Message = "SpeedWheel is connected and setup using virtual Xbox 360 controller.";
+                this.Calibrate();
+            }
+        }
+
+        private void Calibrate(bool confirmButtonPressed = false)
+        {
+            if (this.calibrated)
+            {
+                return;
+            }
+
+            if (this.SteeringLeft90Value == null)
+            {
+                this.Message = "Please turn wheel 90 degrees to the left and press A button.";
+                if (confirmButtonPressed)
+                {
+                    this.SteeringLeft90Value = this.SteeringValue;
+                }
+            }
+            else if (this.SteeringRight90Value == null)
+            {
+                this.Message = "Please turn wheel 90 degrees to the right and press A button.";
+                if (confirmButtonPressed)
+                {
+                    this.SteeringRight90Value = this.SteeringValue;
+                }
+            }
+            else if (this.SteeringCenteredValue == null)
+            {
+                this.Message = "Please turn wheel to center and press A button.";
+                if (confirmButtonPressed)
+                {
+                    this.SteeringCenteredValue = this.SteeringValue;
+                    this.Message = "SpeedWheel connected as Xbox 360 controller and calibrated!";
+                    this.calibrated = true;
+                }
+            }
+
+            if (confirmButtonPressed)
+            {
+                this.aButtonWasReleased = false;
             }
         }
     }
