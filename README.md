@@ -52,22 +52,30 @@ If all the requirements are installed, the software should start up without any 
 
 4) You can see the steering, accelleration, and braking input in the software. The current battery level is also displayed. Finally, you can also see and test the vibration functionality of the controller.
 
-# Forza Motorsports Settings
+## Forza Motorsports Settings
 
-These settings may or may not work for you :)
+These settings seem to work pretty good:
 
-- In SpeedWheelController choose setting to limit to 180 degrees
+- In SpeedWheelController choose setting to "limit to 180 degrees"
+- In Forza:
+   - Driving Assists Steering: Normal
+   - No steering, acceleration, or deceleration deadzones
+   - Vibration Scale: 100
+   - Steering Self-Alignment: 100
 
-- In Forza Motorsports
+Similar settings should work with Forza Horizon.
+     
+## Assetto Corsa Settings
 
-    - Driving Assists
+Assetto Corsa seems to recognize the Xbox 360 Wireless Speed Wheel Controller as a regular Xbox Controller all on its own with no need for the SpeedWheelController app. It should work very similar with the SpeedWheelController software running with the "limit to 180 degrees" setting turned off. The following settings have worked well with Assetto Corsa Content Manager in the past:
 
-        - Steering Normal
-
-    - Controller Advanced
-      - No steering, acceleration, or deceleration deadzones
-      - Vibration Scale 100
-      - Steering Self-Alignment 100
+- Steer left thumb
+- Speed Sensitivity: 75%
+- Steering Speed: 100%
+- Steering gamma: 210%
+- Steering filter: 82%
+- Steering deadzone: 0%
+- Rumble effects: 100%
 
    
 
